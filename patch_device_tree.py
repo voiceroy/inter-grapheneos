@@ -40,14 +40,15 @@ def patch_device_mk(tree: Path, device: str) -> str:
         return f"device.mk: already patched ({path})"
 
     anchor = re.compile(
-        rf"^\s*\$\(call\s+inherit-product\s*,\s*vendor/adevtool/[^)]*{re.escape(device)}\.mk\s*\)\s*$",
+        rf"^\s*\$\(call\s+inherit-product\s*,\s*vendor/adevtool/[^)]*{re.escape(device)}/[^)]+\.mk\s*\)\s*$",
         re.MULTILINE,
     )
     match = anchor.search(text)
     if not match:
         raise SystemExit(
             f"error: anchor line not found in {path}\n"
-            f"  expected something like: $(call inherit-product, vendor/adevtool/config/mk/google_devices/device/{device}/{device}.mk)"
+            f"  expected an inherit-product of vendor/adevtool/.../google_devices/device/{device}/<something>.mk\n"
+            f"  (modern adevtool emits .../{device}/device.mk; older versions emitted .../{device}/{device}.mk)"
         )
 
     insert_at = match.end()
