@@ -15,7 +15,7 @@ Default target device: **tokay** (Pixel 9).
 ## Run it (fresh build server)
 
 ```bash
-git clone <this-repo> Inter
+git clone https://github.com/voiceroy/inter-grapheneos Inter
 cd Inter
 ./apply_to_tree.sh --device tokay /path/to/grapheneos-source
 ```
