@@ -8,7 +8,12 @@
 #   ./apply_to_tree.sh <AOSP_ROOT>
 #   ./apply_to_tree.sh --device <name> <AOSP_ROOT>
 #   ./apply_to_tree.sh --force --device <name> <AOSP_ROOT>
+#   ./apply_to_tree.sh --disable-seedvault --device <name> <AOSP_ROOT>
 #   AOSP_TREE=/path/to/aosp DEVICE=akita ./apply_to_tree.sh
+#
+# --disable-seedvault (or DISABLE_SEEDVAULT=1) comments out
+#   `PRODUCT_PACKAGES += Seedvault` in build/make/.../media_system.mk,
+#   removing Seedvault from the build. Off by default.
 #
 # --device <name> additionally patches per-device files:
 #   - injects `include vendor/extras/extras.mk` into vendor/google_devices/<name>/<name>.mk
@@ -21,10 +26,12 @@ set -euo pipefail
 force=0
 tree="${AOSP_TREE:-}"
 device="${DEVICE:-}"
+disable_seedvault="${DISABLE_SEEDVAULT:-0}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --force) force=1; shift ;;
+        --disable-seedvault) disable_seedvault=1; shift ;;
         --device) device="$2"; shift 2 ;;
         --device=*) device="${1#*=}"; shift ;;
         -h|--help)
@@ -76,6 +83,13 @@ if [[ -f "$aosp_abs/vendor/extras/extras.mk" ]]; then
 else
     echo "error: vendor/extras/extras.mk missing after extract" >&2
     exit 1
+fi
+
+if [[ "$disable_seedvault" -eq 1 ]]; then
+    echo "==> disabling Seedvault"
+    python3 ./patch_seedvault.py --tree "$aosp_abs"
+else
+    echo "note: --disable-seedvault not set; leaving Seedvault in the build"
 fi
 
 if [[ -n "$device" ]]; then

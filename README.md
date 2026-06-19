@@ -1,3 +1,5 @@
+# Note: Always --disable-seedvault first
+
 # Inter for GrapheneOS
 
 Builds a `vendor/extras/` overlay that swaps GrapheneOS's default `sans-serif` for feature-frozen Inter, and patches the device tree to wire it in.
@@ -53,6 +55,7 @@ Both device-tree edits are idempotent — safe to rerun.
 apply_to_tree.sh         # end-to-end driver (build + extract + patch)
 build_inter_vendor.py    # download Inter, freeze features, tar vendor/extras
 patch_device_tree.py     # device.mk include + RRO module rename
+patch_seedvault.py       # comment out PRODUCT_PACKAGES += Seedvault (tree-wide)
 frozen_fonts/            # hand-tuned XML + Android.bp templates (do not regen)
   ├── Android.bp
   ├── config.xml
@@ -66,3 +69,4 @@ frozen_fonts/            # hand-tuned XML + Android.bp templates (do not regen)
 - `frozen_fonts/fonts_customization.xml` and `config.xml` are hand-tuned. Don't regenerate them.
 - The device-mk patch anchors on the adevtool `inherit-product` line; modern adevtool emits `.../google_devices/<device>/device.mk`. If the anchor isn't found, the AOSP tree probably hasn't synced yet.
 - The RRO rename works around a module-name collision between the auto-generated overlay and ours by appending a trailing `_`.
+- `patch_seedvault.py` comments out the single `PRODUCT_PACKAGES += Seedvault` line in `build/make/target/product/media_system.mk`, removing Seedvault from every product image. It is **opt-in**: pass `--disable-seedvault` to `apply_to_tree.sh` (or set `DISABLE_SEEDVAULT=1`); off by default. Device-independent and idempotent. This leaves the build with no backup transport — that's intended. Run standalone with `./patch_seedvault.py --tree /path/to/grapheneos-source`.
