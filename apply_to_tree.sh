@@ -9,11 +9,16 @@
 #   ./apply_to_tree.sh --device <name> <AOSP_ROOT>
 #   ./apply_to_tree.sh --force --device <name> <AOSP_ROOT>
 #   ./apply_to_tree.sh --disable-seedvault --device <name> <AOSP_ROOT>
+#   ./apply_to_tree.sh --updater-url https://releases.graphene.voiceroy.dev/ --device <name> <AOSP_ROOT>
 #   AOSP_TREE=/path/to/aosp DEVICE=akita ./apply_to_tree.sh
 #
 # --disable-seedvault (or DISABLE_SEEDVAULT=1) comments out
 #   `PRODUCT_PACKAGES += Seedvault` in build/make/.../media_system.mk,
 #   removing Seedvault from the build. Off by default.
+#
+# --updater-url <URL> (or UPDATER_URL=<URL>) points the Updater app at a custom
+#   OTA server: rewrites the url string + pinned <domain> in packages/apps/Updater
+#   (pin-set left untouched). Off by default.
 #
 # --device <name> additionally patches per-device files:
 #   - injects `include vendor/extras/extras.mk` into vendor/google_devices/<name>/<name>.mk
@@ -27,15 +32,18 @@ force=0
 tree="${AOSP_TREE:-}"
 device="${DEVICE:-}"
 disable_seedvault="${DISABLE_SEEDVAULT:-0}"
+updater_url="${UPDATER_URL:-}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --force) force=1; shift ;;
         --disable-seedvault) disable_seedvault=1; shift ;;
+        --updater-url) updater_url="$2"; shift 2 ;;
+        --updater-url=*) updater_url="${1#*=}"; shift ;;
         --device) device="$2"; shift 2 ;;
         --device=*) device="${1#*=}"; shift ;;
         -h|--help)
-            sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         --) shift; tree="${1:-$tree}"; shift || true ;;
@@ -90,6 +98,13 @@ if [[ "$disable_seedvault" -eq 1 ]]; then
     python3 ./patch_seedvault.py --tree "$aosp_abs"
 else
     echo "note: --disable-seedvault not set; leaving Seedvault in the build"
+fi
+
+if [[ -n "$updater_url" ]]; then
+    echo "==> pointing Updater at $updater_url"
+    python3 ./patch_updater.py --tree "$aosp_abs" --url "$updater_url"
+else
+    echo "note: --updater-url not set; leaving Updater pointed at the default server"
 fi
 
 if [[ -n "$device" ]]; then
