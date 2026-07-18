@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a GrapheneOS vendor/extras overlay with Google Sans Flex.
 
-Downloads GoogleSansFlex-Regular.ttf from Android's official source and
-assembles it with the font customization XML and framework resource overlay.
+Downloads the regular and clock Google Sans Flex fonts from Android's official
+source and assembles them with the font configuration and resource overlay.
 """
 
 from __future__ import annotations
@@ -19,11 +19,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 TEMPLATE_DIR = ROOT / "frozen_fonts"
 OUTPUT = ROOT / "vendor_extras_google_sans_flex.tar.gz"
-FONT_NAME = "GoogleSansFlex-Regular.ttf"
-FONT_URL = (
+FONT_NAMES = (
+    "GoogleSansFlex-Regular.ttf",
+    "GoogleSansFlexClock-Regular.ttf",
+)
+FONT_BASE_URL = (
     "https://android.googlesource.com/platform/external/robolectric/+/"
-    "refs/heads/main/nativeruntime/src/main/resources/fonts/"
-    f"{FONT_NAME}?format=TEXT"
+    "refs/heads/main/nativeruntime/src/main/resources/fonts"
 )
 USER_AGENT = "grapheneos-google-sans-flex-builder/1"
 
@@ -36,9 +38,10 @@ TEMPLATES = {
 }
 
 
-def download_font(dst: Path) -> None:
-    print(f"  downloading {FONT_NAME}")
-    request = urllib.request.Request(FONT_URL, headers={"User-Agent": USER_AGENT})
+def download_font(name: str, dst: Path) -> None:
+    print(f"  downloading {name}")
+    url = f"{FONT_BASE_URL}/{name}?format=TEXT"
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=120) as response:
         encoded = response.read()
 
@@ -57,7 +60,8 @@ def assemble_tree(tmp: Path) -> Path:
     (tree / "prebuilt" / "etc").mkdir(parents=True)
     (tree / OVERLAY_REL).mkdir(parents=True)
 
-    download_font(tree / "prebuilt" / "fonts" / FONT_NAME)
+    for name in FONT_NAMES:
+        download_font(name, tree / "prebuilt" / "fonts" / name)
 
     for name, rel in TEMPLATES.items():
         src = TEMPLATE_DIR / name
@@ -89,7 +93,8 @@ def main() -> int:
             raise SystemExit(f"missing template: {TEMPLATE_DIR / name}")
     if args.check:
         with tempfile.TemporaryDirectory(prefix="google-sans-flex-check-") as tmp_s:
-            download_font(Path(tmp_s) / FONT_NAME)
+            for name in FONT_NAMES:
+                download_font(name, Path(tmp_s) / name)
         print("Google Sans Flex templates and download are valid")
         return 0
 

@@ -8,10 +8,10 @@ Default target device: **tokay** (Pixel 9).
 
 ## What it does
 
-1. Downloads `GoogleSansFlex-Regular.ttf` from Android's official source.
+1. Downloads `GoogleSansFlex-Regular.ttf` and `GoogleSansFlexClock-Regular.ttf` from Android's official source.
 2. Maps the framework's clock, body, light, regular, and headline families to Google Sans Flex.
 3. Maps the system `sans-serif` and Material variable typography families to the downloaded font.
-4. Packages the font and hand-tuned XML templates as `vendor_extras_google_sans_flex.tar.gz`.
+4. Packages the fonts and hand-tuned XML templates as `vendor_extras_google_sans_flex.tar.gz`.
 5. Extracts that into the AOSP tree and patches the device `.mk` + auto-generated RRO module name.
 
 ## Run it (fresh build server)
@@ -71,7 +71,7 @@ frozen_fonts/            # hand-tuned XML + Android.bp templates (do not regen)
 ## Notes
 
 - `frozen_fonts/fonts_customization.xml` and `config.xml` are hand-tuned. Don't regenerate them.
-- The builder downloads `GoogleSansFlex-Regular.ttf` from Android's official source and installs it into the product fonts.
+- The builder downloads the regular and dedicated clock Google Sans Flex fonts from Android's official source and installs them into the product fonts.
 - The device-mk patch anchors on the adevtool `inherit-product` line; modern adevtool emits `.../google_devices/<device>/device.mk`. If the anchor isn't found, the AOSP tree probably hasn't synced yet.
 - The RRO rename works around a module-name collision between the auto-generated overlay and ours by appending a trailing `_`.
 - `patch_seedvault.py` comments out the single `PRODUCT_PACKAGES += Seedvault` line in `build/make/target/product/media_system.mk`, removing Seedvault from every product image. It is **opt-in**: pass `--disable-seedvault` to `apply_to_tree.sh` (or set `DISABLE_SEEDVAULT=1`); off by default. Device-independent and idempotent. This leaves the build with no backup transport — that's intended. Run standalone with `./patch_seedvault.py --tree /path/to/grapheneos-source`.

@@ -13,4 +13,5 @@ PRODUCT_PACKAGES += \
     fonts_customization.xml
 
 PRODUCT_COPY_FILES += \
-    vendor/extras/prebuilt/fonts/GoogleSansFlex-Regular.ttf:$(TARGET_COPY_OUT_PRODUCT)/fonts/GoogleSansFlex-Regular.ttf
+    vendor/extras/prebuilt/fonts/GoogleSansFlex-Regular.ttf:$(TARGET_COPY_OUT_PRODUCT)/fonts/GoogleSansFlex-Regular.ttf \
+    vendor/extras/prebuilt/fonts/GoogleSansFlexClock-Regular.ttf:$(TARGET_COPY_OUT_PRODUCT)/fonts/GoogleSansFlexClock-Regular.ttf

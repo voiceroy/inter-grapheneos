@@ -423,12 +423,12 @@
   </family>
 
   <family customizationType="new-named-family" name="google-sans-clock">
-    <font>GoogleSansFlex-Regular.ttf</font>
+    <font>GoogleSansFlexClock-Regular.ttf</font>
   </family>
 
   <family-list customizationType="new-named-family" name="google-sans-flex-clock">
     <family>
-      <font>GoogleSansFlex-Regular.ttf</font>
+      <font>GoogleSansFlexClock-Regular.ttf</font>
     </family>
     <family>
       <font>GoogleSansFlex-Regular.ttf</font>
