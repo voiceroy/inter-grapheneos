@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Patch a fresh GrapheneOS/AOSP tree with feature-frozen Inter fonts.
+# Patch a fresh GrapheneOS/AOSP tree to use Google Sans Flex.
 #
 # Designed to run on a clean cloud build server after:
-#   git clone <this-repo> && cd Inter
+#   git clone <this-repo> && cd GoogleSansFlex
 #
 # Usage:
 #   ./apply_to_tree.sh <AOSP_ROOT>
@@ -64,21 +64,14 @@ fi
 here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$here"
 
-if ! command -v uv >/dev/null 2>&1; then
-    echo "==> uv not found; installing via official installer"
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.local/bin:$PATH"
-    command -v uv >/dev/null 2>&1 || { echo "error: uv install failed" >&2; exit 1; }
-fi
-
-echo "==> building vendor/extras tarball"
+echo "==> building Google Sans Flex vendor/extras tarball"
 build_args=()
 [[ "$force" -eq 1 ]] && build_args+=(--force)
-python3 ./build_inter_vendor.py "${build_args[@]}"
+python3 ./build_google_sans_flex_vendor.py "${build_args[@]}"
 
-tarball="$(ls -1t vendor_extras_inter-*.tar.gz 2>/dev/null | head -n1 || true)"
+tarball="$(ls -1t vendor_extras_google_sans_flex*.tar.gz 2>/dev/null | head -n1 || true)"
 if [[ -z "$tarball" ]]; then
-    echo "error: no vendor_extras_inter-*.tar.gz produced" >&2
+    echo "error: no vendor_extras_google_sans_flex*.tar.gz produced" >&2
     exit 1
 fi
 
