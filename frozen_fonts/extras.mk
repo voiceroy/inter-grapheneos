@@ -11,3 +11,6 @@ PRODUCT_PACKAGE_OVERLAYS += vendor/extras/overlay/common
 # Font configuration
 PRODUCT_PACKAGES += \
     fonts_customization.xml
+
+PRODUCT_COPY_FILES += \
+    vendor/extras/prebuilt/fonts/GoogleSansFlex-Regular.ttf:$(TARGET_COPY_OUT_PRODUCT)/fonts/GoogleSansFlex-Regular.ttf
