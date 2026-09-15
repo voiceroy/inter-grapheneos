@@ -1,0 +1,40 @@
+From 225fc12747a0d17e6b31db7d959ac1fdfd44ef92 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Thu, 10 Sep 2026 04:15:43 +0200
+Subject: [PATCH 3/3] refactor boolean name to fit style
+
+---
+ .../android/launcher3/taskbar/TaskbarActivityContext.java   | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java b/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
+index f6ca7abab9..a025e1f007 100644
+--- a/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
++++ b/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
+@@ -290,7 +290,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
+     private final boolean mIsSafeModeEnabled;
+     private final boolean mIsUserSetupComplete;
+     private final boolean mIsNavBarKidsMode;
+-    private final boolean mHideNavHandle;
++    private final boolean mIsHideNavHandle;
+ 
+     private boolean mIsDestroyed = false;
+ 
+@@ -354,7 +354,7 @@ public TaskbarActivityContext(int displayId, Context windowContext,
+         SettingsCache settingsCache = SettingsCache.INSTANCE.get(this);
+         mIsUserSetupComplete = settingsCache.getValue(URI_USER_SETUP_COMPLETE);
+         mIsNavBarKidsMode = settingsCache.getValue(URI_NAV_BAR_KIDS_MODE);
+-        mHideNavHandle = settingsCache.getValue(URI_HIDE_NAV_HANDLE);
++        mIsHideNavHandle = settingsCache.getValue(URI_HIDE_NAV_HANDLE);
+         mBubbleFeatureConfig =
+                 new BubbleFeatureConfigImpl(mWindowContext, getDesktopState(mWindowContext));
+ 
+@@ -974,7 +974,7 @@ public boolean isGestureNav() {
+     }
+ 
+     public boolean isHideNavHandle() {
+-        return mHideNavHandle;
++        return mIsHideNavHandle;
+     }
+ 
+     public boolean imeDrawsImeNavBar() {

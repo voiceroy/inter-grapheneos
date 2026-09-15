@@ -1,0 +1,5 @@
+# Apply in this order, each patch from the named project directory.
+# Paths in each patch are relative to that project, not the AOSP root.
+frameworks/base 0001-frameworks-base-add-HIDE_NAVIGATION_HANDLE.patch
+packages/apps/Settings 0002-Settings-add-hide-navigation-hint-toggle.patch
+packages/apps/Launcher3 0003-Launcher3-honor-HIDE_NAVIGATION_HANDLE.patch

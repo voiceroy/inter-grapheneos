@@ -1,0 +1,70 @@
+From 93c8ed339925662e04b9f9efaf74752245f039c2 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Tue, 8 Sep 2026 04:07:06 +0200
+Subject: [PATCH 3/3] Add Launcher to KnownSystemPackage enums and use it for
+ hide nav handle setting reads
+
+---
+ core/api/system-current.txt                    | 1 +
+ core/java/android/ext/KnownSystemPackage.java  | 2 ++
+ core/java/android/ext/KnownSystemPackages.java | 1 +
+ core/java/android/provider/Settings.java       | 2 +-
+ 4 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/core/api/system-current.txt b/core/api/system-current.txt
+index c0df87a641bb3..42ac871b791be 100644
+--- a/core/api/system-current.txt
++++ b/core/api/system-current.txt
+@@ -5821,6 +5821,7 @@ package android.ext {
+   }
+ 
+   public interface KnownSystemPackage {
++    field public static final int LAUNCHER = 4; // 0x4
+     field public static final int SETTINGS = 0; // 0x0
+     field public static final int SETUP_WIZARD = 3; // 0x3
+     field public static final int SHELL = 1; // 0x1
+diff --git a/core/java/android/ext/KnownSystemPackage.java b/core/java/android/ext/KnownSystemPackage.java
+index bb88a92edad51..6833460272916 100644
+--- a/core/java/android/ext/KnownSystemPackage.java
++++ b/core/java/android/ext/KnownSystemPackage.java
+@@ -13,6 +13,7 @@ public interface KnownSystemPackage {
+     int SHELL = 1;
+     int SYSTEM_UI = 2;
+     int SETUP_WIZARD = 3;
++    int LAUNCHER = 4;
+ 
+     /** @hide */
+     @IntDef(value = {
+@@ -20,6 +21,7 @@ public interface KnownSystemPackage {
+             SHELL,
+             SYSTEM_UI,
+             SETUP_WIZARD,
++            LAUNCHER,
+     })
+     @Retention(RetentionPolicy.SOURCE)
+     @interface Enum {}
+diff --git a/core/java/android/ext/KnownSystemPackages.java b/core/java/android/ext/KnownSystemPackages.java
+index 839f04c0773bc..22c1f5ac053e0 100644
+--- a/core/java/android/ext/KnownSystemPackages.java
++++ b/core/java/android/ext/KnownSystemPackages.java
+@@ -49,6 +49,7 @@ public String getById(@KnownSystemPackage.Enum int id) {
+             case KnownSystemPackage.SHELL -> shell;
+             case KnownSystemPackage.SYSTEM_UI -> systemUi;
+             case KnownSystemPackage.SETUP_WIZARD -> setupWizard;
++            case KnownSystemPackage.LAUNCHER -> launcher;
+             default -> throw new IllegalArgumentException();
+         };
+     }
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 3e064359f656d..f412306c7fba3 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -7524,7 +7524,7 @@ public static final class Secure extends NameValueTable {
+         public static final String DISALLOW_DELAYED_LOCKING_ON_USER_STOP = "disallow_delayed_locking_on_user_stop";
+ 
+         /** @hide */
+-        @Protected(restrictReads = false, readWrite = KnownSystemPackage.SETTINGS)
++        @Protected(read = KnownSystemPackage.LAUNCHER, readWrite = KnownSystemPackage.SETTINGS)
+         public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
+ 
+         // ExtSettings END

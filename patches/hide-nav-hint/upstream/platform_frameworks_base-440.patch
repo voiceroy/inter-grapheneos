@@ -1,0 +1,150 @@
+From 6ce20c6dc9ea1a0ed94c5b49c39b0e7e42a573c8 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Sat, 5 Sep 2026 21:11:22 +0200
+Subject: [PATCH 1/3] Add settings key for nav pill hide
+
+---
+ core/java/android/provider/Settings.java | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index bcf423537bb66..881dd6d67fcb6 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12506,6 +12506,12 @@ public static boolean putFloatForUser(ContentResolver cr, String name, float val
+         public static final String ASSIST_TOUCH_GESTURE_ENABLED =
+                 "assist_touch_gesture_enabled";
+ 
++        /**
++         * Whether the navigation hint pill is hidden in gesture navigation mode.
++         * @hide
++         */
++        public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
++
+         /**
+          * Whether the assistant can be triggered by long-pressing the home button
+          *
+
+From 2156c649f1ea17e532b9653b0b9be3ca8bde2c03 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Mon, 7 Sep 2026 19:13:32 +0200
+Subject: [PATCH 2/3] Use ExtSettings for hide nav hint
+
+---
+ core/java/android/ext/settings/ExtSettings.java |  3 +++
+ core/java/android/provider/Settings.java        | 10 ++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/core/java/android/ext/settings/ExtSettings.java b/core/java/android/ext/settings/ExtSettings.java
+index 821f3d2384ce2..2522ecff49838 100644
+--- a/core/java/android/ext/settings/ExtSettings.java
++++ b/core/java/android/ext/settings/ExtSettings.java
+@@ -100,6 +100,9 @@ public class ExtSettings {
+     public static final BoolSetting DISALLOW_DELAYED_LOCKING_ON_USER_STOP = new BoolSetting(
+             Setting.Scope.PER_USER, Settings.Secure.DISALLOW_DELAYED_LOCKING_ON_USER_STOP, false);
+ 
++    public static final BoolSetting HIDE_NAVIGATION_HANDLE = new BoolSetting(
++            Setting.Scope.PER_USER, Settings.Secure.HIDE_NAVIGATION_HANDLE, false);
++
+     private ExtSettings() {}
+ 
+     public static Function<Context, Boolean> defaultBool(@BoolRes int res) {
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 881dd6d67fcb6..3e064359f656d 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -7523,6 +7523,10 @@ public static final class Secure extends NameValueTable {
+         @Protected(readWrite = KnownSystemPackage.SETTINGS)
+         public static final String DISALLOW_DELAYED_LOCKING_ON_USER_STOP = "disallow_delayed_locking_on_user_stop";
+ 
++        /** @hide */
++        @Protected(restrictReads = false, readWrite = KnownSystemPackage.SETTINGS)
++        public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
++
+         // ExtSettings END
+ 
+         // NOTE: If you add new settings here, be sure to add them to
+@@ -12506,12 +12510,6 @@ public static boolean putFloatForUser(ContentResolver cr, String name, float val
+         public static final String ASSIST_TOUCH_GESTURE_ENABLED =
+                 "assist_touch_gesture_enabled";
+ 
+-        /**
+-         * Whether the navigation hint pill is hidden in gesture navigation mode.
+-         * @hide
+-         */
+-        public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
+-
+         /**
+          * Whether the assistant can be triggered by long-pressing the home button
+          *
+
+From 93c8ed339925662e04b9f9efaf74752245f039c2 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Tue, 8 Sep 2026 04:07:06 +0200
+Subject: [PATCH 3/3] Add Launcher to KnownSystemPackage enums and use it for
+ hide nav handle setting reads
+
+---
+ core/api/system-current.txt                    | 1 +
+ core/java/android/ext/KnownSystemPackage.java  | 2 ++
+ core/java/android/ext/KnownSystemPackages.java | 1 +
+ core/java/android/provider/Settings.java       | 2 +-
+ 4 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/core/api/system-current.txt b/core/api/system-current.txt
+index c0df87a641bb3..42ac871b791be 100644
+--- a/core/api/system-current.txt
++++ b/core/api/system-current.txt
+@@ -5821,6 +5821,7 @@ package android.ext {
+   }
+ 
+   public interface KnownSystemPackage {
++    field public static final int LAUNCHER = 4; // 0x4
+     field public static final int SETTINGS = 0; // 0x0
+     field public static final int SETUP_WIZARD = 3; // 0x3
+     field public static final int SHELL = 1; // 0x1
+diff --git a/core/java/android/ext/KnownSystemPackage.java b/core/java/android/ext/KnownSystemPackage.java
+index bb88a92edad51..6833460272916 100644
+--- a/core/java/android/ext/KnownSystemPackage.java
++++ b/core/java/android/ext/KnownSystemPackage.java
+@@ -13,6 +13,7 @@ public interface KnownSystemPackage {
+     int SHELL = 1;
+     int SYSTEM_UI = 2;
+     int SETUP_WIZARD = 3;
++    int LAUNCHER = 4;
+ 
+     /** @hide */
+     @IntDef(value = {
+@@ -20,6 +21,7 @@ public interface KnownSystemPackage {
+             SHELL,
+             SYSTEM_UI,
+             SETUP_WIZARD,
++            LAUNCHER,
+     })
+     @Retention(RetentionPolicy.SOURCE)
+     @interface Enum {}
+diff --git a/core/java/android/ext/KnownSystemPackages.java b/core/java/android/ext/KnownSystemPackages.java
+index 839f04c0773bc..22c1f5ac053e0 100644
+--- a/core/java/android/ext/KnownSystemPackages.java
++++ b/core/java/android/ext/KnownSystemPackages.java
+@@ -49,6 +49,7 @@ public String getById(@KnownSystemPackage.Enum int id) {
+             case KnownSystemPackage.SHELL -> shell;
+             case KnownSystemPackage.SYSTEM_UI -> systemUi;
+             case KnownSystemPackage.SETUP_WIZARD -> setupWizard;
++            case KnownSystemPackage.LAUNCHER -> launcher;
+             default -> throw new IllegalArgumentException();
+         };
+     }
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 3e064359f656d..f412306c7fba3 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -7524,7 +7524,7 @@ public static final class Secure extends NameValueTable {
+         public static final String DISALLOW_DELAYED_LOCKING_ON_USER_STOP = "disallow_delayed_locking_on_user_stop";
+ 
+         /** @hide */
+-        @Protected(restrictReads = false, readWrite = KnownSystemPackage.SETTINGS)
++        @Protected(read = KnownSystemPackage.LAUNCHER, readWrite = KnownSystemPackage.SETTINGS)
+         public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
+ 
+         // ExtSettings END

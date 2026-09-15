@@ -1,0 +1,44 @@
+From 265ba8bb7f36338f2f914dd9acc9b3deff5d658d Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Tue, 8 Sep 2026 04:08:02 +0200
+Subject: [PATCH 4/4] move hide nav hint strings to strings_ext.xml
+
+---
+ res/values/strings.xml     | 7 -------
+ res/values/strings_ext.xml | 7 +++++++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index c6f7a90c9df..55de29a749a 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -12362,13 +12362,6 @@
+ 
+     <!-- Search keywords for System Navigation settings. [CHAR_LIMIT=NONE]-->
+     <string name="keywords_system_navigation">system navigation, 2 button navigation, 3 button navigation, gesture navigation, swipe</string>
+-    
+-    <!-- Title for setting category that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
+-    <string name="hide_navigation_handle_category_title">Navigation hint</string>
+-    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
+-    <string name="hide_navigation_handle_title">Hide navigation hint</string>
+-    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
+-    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
+ 
+     <!-- Title for setting category that is shown to enable invoking digital assistant with swipe. [CHAR LIMIT=60] -->
+     <string name="assistant_gesture_category_title">Digital assistant</string>
+diff --git a/res/values/strings_ext.xml b/res/values/strings_ext.xml
+index 18de9b0a68d..42a6404e1f6 100644
+--- a/res/values/strings_ext.xml
++++ b/res/values/strings_ext.xml
+@@ -340,4 +340,11 @@ May cause unreliable service. Use at your own risk.
+     <string name="cert_transparency_dl_footer">"Certificate Transparency (CT) is an Internet standard designed to enhance the security of digital certificates. It requires Certificate Authorities (CAs) to submit all issued certificates to a public log that records them, increasing transparency and accountability in the certificate issuance process.
+ 
+ By maintaining a verifiable record of all certificates, CT makes it significantly harder for malicious actors to forge certificates or for CAs to mistakenly issue them. This helps protect apps from man-in-the-middle attacks and other security threats."</string>
++
++    <!-- Title for setting category in gesture navigation settings that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_category_title">Navigation hint</string>
++    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_title">Hide navigation hint</string>
++    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
++    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
+ </resources>

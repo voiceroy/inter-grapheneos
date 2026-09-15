@@ -1,0 +1,110 @@
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Sat, 5 Sep 2026 21:11:22 +0200
+Subject: [PATCH] Honor HIDE_NAVIGATION_HANDLE for the gesture navigation hint
+
+Squashed from GrapheneOS/platform_packages_apps_Launcher3#83 (hide-nav-hint).
+
+When the setting is enabled, the stashed handle's dedicated alpha
+channel is set to 0 so the pill is not drawn. Reserved space and
+legacy-app layout are left unchanged.
+
+Apply inside packages/apps/Launcher3:
+  git apply 0003-Launcher3-honor-HIDE_NAVIGATION_HANDLE.patch
+
+Source: https://github.com/GrapheneOS/platform_packages_apps_Launcher3/pull/83
+Head:   0xALUCARD:hide-nav-hint @ 225fc12747a0d17e6b31db7d959ac1fdfd44ef92
+---
+ quickstep/src/com/android/launcher3/taskbar/StashedHandleViewController.java | 5 ++++-
+ quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java       | 10 ++++++++++
+ quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java           | 9 +++++++++
+ 3 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/quickstep/src/com/android/launcher3/taskbar/StashedHandleViewController.java b/quickstep/src/com/android/launcher3/taskbar/StashedHandleViewController.java
+index 88997e16ef..2dcbe645bc 100644
+--- a/quickstep/src/com/android/launcher3/taskbar/StashedHandleViewController.java
++++ b/quickstep/src/com/android/launcher3/taskbar/StashedHandleViewController.java
+@@ -71,7 +71,8 @@ public class StashedHandleViewController implements TaskbarControllers.LoggableT
+     public static final int ALPHA_INDEX_NUDGED = 4;
+     public static final int ALPHA_INDEX_ALL_SET_TRANSITION = 5;
+     public static final int ALPHA_INDEX_CUEBAR_HIDDEN = 6;
+-    private static final int NUM_ALPHA_CHANNELS = 7;
++    public static final int ALPHA_INDEX_HIDE_NAV_HANDLE = 7;
++    private static final int NUM_ALPHA_CHANNELS = 8;
+ 
+     // Values for long press animations, picked to most closely match navbar spec.
+     private static final float SCALE_TOUCH_ANIMATION_SHRINK = 0.85f;
+@@ -154,6 +155,8 @@ public void init(TaskbarControllers controllers) {
+ 
+         mTaskbarStashedHandleAlpha.get(ALPHA_INDEX_STASHED).setValue(
+                 activity.isPhoneGestureNavMode() ? 1 : 0);
++        mTaskbarStashedHandleAlpha.get(ALPHA_INDEX_HIDE_NAV_HANDLE).setValue(
++                activity.isHideNavHandle() ? 0 : 1);
+         mTaskbarStashedHandleHintScale.updateValue(1f);
+ 
+         final int stashedTaskbarHeight = mControllers.taskbarStashController.getStashedHeight();
+diff --git a/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java b/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
+index c20622ff1e..a025e1f007 100644
+--- a/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
++++ b/quickstep/src/com/android/launcher3/taskbar/TaskbarActivityContext.java
+@@ -233,6 +233,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
+ 
+     private static final Uri URI_USER_SETUP_COMPLETE = Secure.getUriFor(Secure.USER_SETUP_COMPLETE);
+     private static final Uri URI_NAV_BAR_KIDS_MODE = Secure.getUriFor(Secure.NAV_BAR_KIDS_MODE);
++    private static final Uri URI_HIDE_NAV_HANDLE = Secure.getUriFor(Secure.HIDE_NAVIGATION_HANDLE);
+ 
+     private static final String TAG = "TaskbarActivityContext";
+ 
+@@ -289,6 +290,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
+     private final boolean mIsSafeModeEnabled;
+     private final boolean mIsUserSetupComplete;
+     private final boolean mIsNavBarKidsMode;
++    private final boolean mIsHideNavHandle;
+ 
+     private boolean mIsDestroyed = false;
+ 
+@@ -352,6 +354,7 @@ public TaskbarActivityContext(int displayId, Context windowContext,
+         SettingsCache settingsCache = SettingsCache.INSTANCE.get(this);
+         mIsUserSetupComplete = settingsCache.getValue(URI_USER_SETUP_COMPLETE);
+         mIsNavBarKidsMode = settingsCache.getValue(URI_NAV_BAR_KIDS_MODE);
++        mIsHideNavHandle = settingsCache.getValue(URI_HIDE_NAV_HANDLE);
+         mBubbleFeatureConfig =
+                 new BubbleFeatureConfigImpl(mWindowContext, getDesktopState(mWindowContext));
+ 
+@@ -970,6 +973,10 @@ public boolean isGestureNav() {
+         return mNavMode == NavigationMode.NO_BUTTON;
+     }
+ 
++    public boolean isHideNavHandle() {
++        return mIsHideNavHandle;
++    }
++
+     public boolean imeDrawsImeNavBar() {
+         return mImeDrawsImeNavBar;
+     }
+diff --git a/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java b/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
+index d8b032aabb..b0dad16996 100644
+--- a/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
++++ b/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
+@@ -138,6 +138,9 @@ public class TaskbarManagerImpl {
+     private static final Uri NAV_BAR_KIDS_MODE = Settings.Secure.getUriFor(
+             Settings.Secure.NAV_BAR_KIDS_MODE);
+ 
++    private static final Uri HIDE_NAVIGATION_HANDLE_URI = Settings.Secure.getUriFor(
++            Settings.Secure.HIDE_NAVIGATION_HANDLE);
++
+     private final Context mBaseContext;
+     private final int mPrimaryDisplayId;
+     private final TaskbarNavButtonCallbacks mNavCallbacks;
+@@ -345,6 +348,12 @@ public TaskbarManagerImpl(
+                 v -> onSettingChanged(v, TaskbarActivityContext::isInKidsMode));
+         cleanupTasks.addCloseable(getTaskbarUiThread(), navBarKidsModeSafeCloseable);
+ 
++        var hideNavHandleSafeCloseable = settingsCache.getListenableRef(
++                HIDE_NAVIGATION_HANDLE_URI).forEach(
++                        getTaskbarUiThread(),
++                        v -> onSettingChanged(v, TaskbarActivityContext::isHideNavHandle));
++        cleanupTasks.addCloseable(getTaskbarUiThread(), hideNavHandleSafeCloseable);
++
+         SimpleBroadcastReceiver shutdownReceiver = new SimpleBroadcastReceiver(
+                 mBaseContext,
+                 UI_HELPER_EXECUTOR,

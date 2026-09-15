@@ -20,6 +20,7 @@ Default target device: **tokay** (Pixel 9).
 git clone https://github.com/voiceroy/inter-grapheneos GoogleSansFlex
 cd GoogleSansFlex
 ./apply_to_tree.sh --device tokay /path/to/grapheneos-source
+./apply_to_tree.sh --hide-nav-hint --device tokay /path/to/grapheneos-source
 ```
 
 `apply_to_tree.sh` will:
@@ -61,6 +62,7 @@ build_google_sans_flex_vendor.py # download the font and package the overlay
 patch_device_tree.py     # device.mk include + RRO module rename
 patch_seedvault.py       # comment out PRODUCT_PACKAGES += Seedvault (tree-wide)
 patch_updater.py         # point Updater app at a custom OTA server (url + pinned domain)
+patches/hide-nav-hint/   # git-apply series: hide gesture navigation hint pill
 frozen_fonts/            # hand-tuned XML + Android.bp templates (do not regen)
   ├── Android.bp
   ├── config.xml
@@ -76,3 +78,4 @@ frozen_fonts/            # hand-tuned XML + Android.bp templates (do not regen)
 - The RRO rename works around a module-name collision between the auto-generated overlay and ours by appending a trailing `_`.
 - `patch_seedvault.py` comments out the single `PRODUCT_PACKAGES += Seedvault` line in `build/make/target/product/media_system.mk`, removing Seedvault from every product image. It is **opt-in**: pass `--disable-seedvault` to `apply_to_tree.sh` (or set `DISABLE_SEEDVAULT=1`); off by default. Device-independent and idempotent. This leaves the build with no backup transport — that's intended. Run standalone with `./patch_seedvault.py --tree /path/to/grapheneos-source`.
 - `patch_updater.py` rewrites the update server in `packages/apps/Updater`: the `url` string in `res/values/config.xml` and the pinned `<domain>` in `res/xml/network_security_config.xml`. The certificate `<pin-set>` is **left untouched** — a Let's Encrypt cert (e.g. via Fly.io) still chains to the pinned ISRG roots, so pinning keeps working; edit the pin-set yourself if you ever leave a Let's Encrypt issuer. It is **opt-in**: pass `--updater-url <URL>` to `apply_to_tree.sh` (or set `UPDATER_URL=<URL>`); off by default. Device-independent and idempotent.
+- `patches/hide-nav-hint/` is a git-apply patchset for hiding the gesture navigation hint pill (`Settings.Secure.HIDE_NAVIGATION_HANDLE`). Sourced from GrapheneOS PRs [frameworks_base#440](https://github.com/GrapheneOS/platform_frameworks_base/pull/440), [Settings#448](https://github.com/GrapheneOS/platform_packages_apps_Settings/pull/448), and [Launcher3#83](https://github.com/GrapheneOS/platform_packages_apps_Launcher3/pull/83). It is **opt-in**: pass `--hide-nav-hint` to `apply_to_tree.sh` (or set `HIDE_NAV_HINT=1`), or run `./patches/hide-nav-hint/apply.sh /path/to/grapheneos-source`. Not idempotent — `git apply` fails if the tree is already patched. Settings#448 was dirty against `17` at capture time; `--check` first if the tree has moved.

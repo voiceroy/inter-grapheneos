@@ -1,0 +1,273 @@
+From 533d6d885f5e82ba26a9a4c7537363e52b5d0756 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Sat, 5 Sep 2026 21:14:32 +0200
+Subject: [PATCH 1/4] Add toggle in settings for nav pill hide
+
+---
+ res/values/strings.xml                        |  3 +
+ res/xml/gesture_navigation_settings.xml       | 13 +++++
+ .../HideNavigationHandleController.java       | 56 +++++++++++++++++++
+ 3 files changed, 72 insertions(+)
+ create mode 100644 src/com/android/settings/gestures/HideNavigationHandleController.java
+
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 55de29a749a..c574c6dd129 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -15641,4 +15641,7 @@
+     <!-- Search keywords for Human interface device access setting -->
+     <string name="keywords_access_hid">hid, human, access, device</string>
+     <!-- Access HID end -->
++    <string name="hide_navigation_handle_title">Hide navigation bar hint</string>
++    <string name="hide_navigation_handle_summary">Hide the gesture navigation bar hint line shown at the bottom of the screen</string>
++    <string name="hide_navigation_handle_category_title">Navigation bar hint</string>
+ </resources>
+diff --git a/res/xml/gesture_navigation_settings.xml b/res/xml/gesture_navigation_settings.xml
+index d2719853346..21f267d94fe 100644
+--- a/res/xml/gesture_navigation_settings.xml
++++ b/res/xml/gesture_navigation_settings.xml
+@@ -34,6 +34,19 @@
+             settings:buttonPreferenceType="filled" />
+     </PreferenceCategory>
+ 
++    <PreferenceCategory
++        android:key="hide_navigation_handle_category"
++        android:persistent="false"
++        android:title="@string/hide_navigation_handle_category_title">
++
++        <SwitchPreferenceCompat
++            android:key="hide_navigation_handle"
++            android:title="@string/hide_navigation_handle_title"
++            android:summary="@string/hide_navigation_handle_summary"
++            settings:controller="com.android.settings.gestures.HideNavigationHandleController"
++        />
++    </PreferenceCategory>
++
+     <PreferenceCategory
+         android:key="assistant_gesture_category"
+         android:persistent="false"
+diff --git a/src/com/android/settings/gestures/HideNavigationHandleController.java b/src/com/android/settings/gestures/HideNavigationHandleController.java
+new file mode 100644
+index 00000000000..8df88d83417
+--- /dev/null
++++ b/src/com/android/settings/gestures/HideNavigationHandleController.java
+@@ -0,0 +1,56 @@
++/*
++ * Copyright (C) 2026 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.gestures;
++
++import android.content.Context;
++import android.provider.Settings;
++
++import com.android.settings.R;
++import com.android.settings.core.TogglePreferenceController;
++
++/**
++ * Configures behaviour of hiding the navigation hint pill.
++ */
++public class HideNavigationHandleController extends TogglePreferenceController {
++
++    public HideNavigationHandleController(Context context, String key) {
++        super(context, key);
++    }
++
++    @Override
++    public boolean isChecked() {
++        return Settings.Secure.getInt(mContext.getContentResolver(),
++                Settings.Secure.HIDE_NAVIGATION_HANDLE, 0) == 1;
++    }
++
++    @Override
++    public boolean setChecked(boolean isChecked) {
++        return Settings.Secure.putInt(mContext.getContentResolver(),
++                Settings.Secure.HIDE_NAVIGATION_HANDLE, isChecked ? 1 : 0);
++    }
++
++    @Override
++    public int getAvailabilityStatus() {
++        return SystemNavigationPreferenceController.isGestureAvailable(mContext) ? AVAILABLE
++                : UNSUPPORTED_ON_DEVICE;
++    }
++
++    @Override
++    public int getSliceHighlightMenuRes() {
++        return R.string.menu_key_system;
++    }
++}
+
+From da743138222097833ebce297dacb2901799a867a Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Mon, 7 Sep 2026 19:14:40 +0200
+Subject: [PATCH 2/4] Move hide nav hint strings to correct place and add
+ comments
+
+---
+ res/values/strings.xml | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index c574c6dd129..c6f7a90c9df 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -12362,6 +12362,13 @@
+ 
+     <!-- Search keywords for System Navigation settings. [CHAR_LIMIT=NONE]-->
+     <string name="keywords_system_navigation">system navigation, 2 button navigation, 3 button navigation, gesture navigation, swipe</string>
++    
++    <!-- Title for setting category that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_category_title">Navigation hint</string>
++    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_title">Hide navigation hint</string>
++    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
++    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
+ 
+     <!-- Title for setting category that is shown to enable invoking digital assistant with swipe. [CHAR LIMIT=60] -->
+     <string name="assistant_gesture_category_title">Digital assistant</string>
+@@ -15641,7 +15648,4 @@
+     <!-- Search keywords for Human interface device access setting -->
+     <string name="keywords_access_hid">hid, human, access, device</string>
+     <!-- Access HID end -->
+-    <string name="hide_navigation_handle_title">Hide navigation bar hint</string>
+-    <string name="hide_navigation_handle_summary">Hide the gesture navigation bar hint line shown at the bottom of the screen</string>
+-    <string name="hide_navigation_handle_category_title">Navigation bar hint</string>
+ </resources>
+
+From c60348fd981ae47f904e903ac0a44af0b10605e6 Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Mon, 7 Sep 2026 19:15:13 +0200
+Subject: [PATCH 3/4] Update HideNavigationHandleController so it extends
+ BoolSettingPrefController
+
+---
+ .../HideNavigationHandleController.java       | 47 ++++---------------
+ 1 file changed, 9 insertions(+), 38 deletions(-)
+
+diff --git a/src/com/android/settings/gestures/HideNavigationHandleController.java b/src/com/android/settings/gestures/HideNavigationHandleController.java
+index 8df88d83417..35e0abddab1 100644
+--- a/src/com/android/settings/gestures/HideNavigationHandleController.java
++++ b/src/com/android/settings/gestures/HideNavigationHandleController.java
+@@ -1,56 +1,27 @@
+ /*
+- * Copyright (C) 2026 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Copyright (C) 2026 GrapheneOS
++ * SPDX-License-Identifier: Apache-2.0
+  */
+ 
+ package com.android.settings.gestures;
+ 
+ import android.content.Context;
+-import android.provider.Settings;
++import android.ext.settings.ExtSettings;
+ 
+-import com.android.settings.R;
+-import com.android.settings.core.TogglePreferenceController;
++import com.android.settings.ext.BoolSettingPrefController;
+ 
+ /**
+  * Configures behaviour of hiding the navigation hint pill.
+  */
+-public class HideNavigationHandleController extends TogglePreferenceController {
++public class HideNavigationHandleController extends BoolSettingPrefController {
+ 
+-    public HideNavigationHandleController(Context context, String key) {
+-        super(context, key);
+-    }
+-
+-    @Override
+-    public boolean isChecked() {
+-        return Settings.Secure.getInt(mContext.getContentResolver(),
+-                Settings.Secure.HIDE_NAVIGATION_HANDLE, 0) == 1;
+-    }
+-
+-    @Override
+-    public boolean setChecked(boolean isChecked) {
+-        return Settings.Secure.putInt(mContext.getContentResolver(),
+-                Settings.Secure.HIDE_NAVIGATION_HANDLE, isChecked ? 1 : 0);
++    public HideNavigationHandleController(Context ctx, String key) {
++        super(ctx, key, ExtSettings.HIDE_NAVIGATION_HANDLE);
+     }
+ 
+     @Override
+     public int getAvailabilityStatus() {
+-        return SystemNavigationPreferenceController.isGestureAvailable(mContext) ? AVAILABLE
+-                : UNSUPPORTED_ON_DEVICE;
+-    }
+-
+-    @Override
+-    public int getSliceHighlightMenuRes() {
+-        return R.string.menu_key_system;
++        return SystemNavigationPreferenceController.isGestureAvailable(mContext)
++                ? super.getAvailabilityStatus() : UNSUPPORTED_ON_DEVICE;
+     }
+ }
+
+From 265ba8bb7f36338f2f914dd9acc9b3deff5d658d Mon Sep 17 00:00:00 2001
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Tue, 8 Sep 2026 04:08:02 +0200
+Subject: [PATCH 4/4] move hide nav hint strings to strings_ext.xml
+
+---
+ res/values/strings.xml     | 7 -------
+ res/values/strings_ext.xml | 7 +++++++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index c6f7a90c9df..55de29a749a 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -12362,13 +12362,6 @@
+ 
+     <!-- Search keywords for System Navigation settings. [CHAR_LIMIT=NONE]-->
+     <string name="keywords_system_navigation">system navigation, 2 button navigation, 3 button navigation, gesture navigation, swipe</string>
+-    
+-    <!-- Title for setting category that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
+-    <string name="hide_navigation_handle_category_title">Navigation hint</string>
+-    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
+-    <string name="hide_navigation_handle_title">Hide navigation hint</string>
+-    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
+-    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
+ 
+     <!-- Title for setting category that is shown to enable invoking digital assistant with swipe. [CHAR LIMIT=60] -->
+     <string name="assistant_gesture_category_title">Digital assistant</string>
+diff --git a/res/values/strings_ext.xml b/res/values/strings_ext.xml
+index 18de9b0a68d..42a6404e1f6 100644
+--- a/res/values/strings_ext.xml
++++ b/res/values/strings_ext.xml
+@@ -340,4 +340,11 @@ May cause unreliable service. Use at your own risk.
+     <string name="cert_transparency_dl_footer">"Certificate Transparency (CT) is an Internet standard designed to enhance the security of digital certificates. It requires Certificate Authorities (CAs) to submit all issued certificates to a public log that records them, increasing transparency and accountability in the certificate issuance process.
+ 
+ By maintaining a verifiable record of all certificates, CT makes it significantly harder for malicious actors to forge certificates or for CAs to mistakenly issue them. This helps protect apps from man-in-the-middle attacks and other security threats."</string>
++
++    <!-- Title for setting category in gesture navigation settings that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_category_title">Navigation hint</string>
++    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
++    <string name="hide_navigation_handle_title">Hide navigation hint</string>
++    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
++    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
+ </resources>

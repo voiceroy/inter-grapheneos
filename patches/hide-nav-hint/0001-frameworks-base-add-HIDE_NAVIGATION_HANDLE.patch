@@ -1,0 +1,96 @@
+From: 0xALUCARD <0xALUCARD@protonmail.com>
+Date: Sat, 5 Sep 2026 21:11:22 +0200
+Subject: [PATCH] Add Settings.Secure.HIDE_NAVIGATION_HANDLE setting
+
+Squashed from GrapheneOS/platform_frameworks_base#440 (hide-nav-hint).
+
+Adds a per-user ExtSettings bool that controls whether the gesture
+navigation hint pill is drawn. Default is false (pill shown). Reads
+are restricted to the launcher; Settings keeps read/write.
+
+Apply inside frameworks/base:
+  git apply 0001-frameworks-base-add-HIDE_NAVIGATION_HANDLE.patch
+
+Source: https://github.com/GrapheneOS/platform_frameworks_base/pull/440
+Head:   0xALUCARD:hide-nav-hint @ ffdacc31fdc860fc2aa6138c4e5f7972d77b606e
+---
+ core/api/system-current.txt                    | 1 +
+ core/java/android/ext/KnownSystemPackage.java  | 2 ++
+ core/java/android/ext/KnownSystemPackages.java | 1 +
+ core/java/android/ext/settings/ExtSettings.java | 3 +++
+ core/java/android/provider/Settings.java       | 4 ++++
+ 5 files changed, 11 insertions(+)
+
+diff --git a/core/api/system-current.txt b/core/api/system-current.txt
+index c0df87a641bb3..42ac871b791be 100644
+--- a/core/api/system-current.txt
++++ b/core/api/system-current.txt
+@@ -5821,6 +5821,7 @@ package android.ext {
+   }
+ 
+   public interface KnownSystemPackage {
++    field public static final int LAUNCHER = 4; // 0x4
+     field public static final int SETTINGS = 0; // 0x0
+     field public static final int SETUP_WIZARD = 3; // 0x3
+     field public static final int SHELL = 1; // 0x1
+diff --git a/core/java/android/ext/KnownSystemPackage.java b/core/java/android/ext/KnownSystemPackage.java
+index bb88a92edad51..6833460272916 100644
+--- a/core/java/android/ext/KnownSystemPackage.java
++++ b/core/java/android/ext/KnownSystemPackage.java
+@@ -13,6 +13,7 @@ public interface KnownSystemPackage {
+     int SHELL = 1;
+     int SYSTEM_UI = 2;
+     int SETUP_WIZARD = 3;
++    int LAUNCHER = 4;
+ 
+     /** @hide */
+     @IntDef(value = {
+@@ -20,6 +21,7 @@ public interface KnownSystemPackage {
+             SHELL,
+             SYSTEM_UI,
+             SETUP_WIZARD,
++            LAUNCHER,
+     })
+     @Retention(RetentionPolicy.SOURCE)
+     @interface Enum {}
+diff --git a/core/java/android/ext/KnownSystemPackages.java b/core/java/android/ext/KnownSystemPackages.java
+index 839f04c0773bc..22c1f5ac053e0 100644
+--- a/core/java/android/ext/KnownSystemPackages.java
++++ b/core/java/android/ext/KnownSystemPackages.java
+@@ -49,6 +49,7 @@ public String getById(@KnownSystemPackage.Enum int id) {
+             case KnownSystemPackage.SHELL -> shell;
+             case KnownSystemPackage.SYSTEM_UI -> systemUi;
+             case KnownSystemPackage.SETUP_WIZARD -> setupWizard;
++            case KnownSystemPackage.LAUNCHER -> launcher;
+             default -> throw new IllegalArgumentException();
+         };
+     }
+diff --git a/core/java/android/ext/settings/ExtSettings.java b/core/java/android/ext/settings/ExtSettings.java
+index 821f3d2384ce2..2522ecff49838 100644
+--- a/core/java/android/ext/settings/ExtSettings.java
++++ b/core/java/android/ext/settings/ExtSettings.java
+@@ -100,6 +100,9 @@ public class ExtSettings {
+     public static final BoolSetting DISALLOW_DELAYED_LOCKING_ON_USER_STOP = new BoolSetting(
+             Setting.Scope.PER_USER, Settings.Secure.DISALLOW_DELAYED_LOCKING_ON_USER_STOP, false);
+ 
++    public static final BoolSetting HIDE_NAVIGATION_HANDLE = new BoolSetting(
++            Setting.Scope.PER_USER, Settings.Secure.HIDE_NAVIGATION_HANDLE, false);
++
+     private ExtSettings() {}
+ 
+     public static Function<Context, Boolean> defaultBool(@BoolRes int res) {
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 4c940ca0334bd..a78f9289d2476 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -7523,6 +7523,10 @@ public static final class Secure extends NameValueTable {
+         @Protected(readWrite = KnownSystemPackage.SETTINGS)
+         public static final String DISALLOW_DELAYED_LOCKING_ON_USER_STOP = "disallow_delayed_locking_on_user_stop";
+ 
++        /** @hide */
++        @Protected(read = KnownSystemPackage.LAUNCHER, readWrite = KnownSystemPackage.SETTINGS)
++        public static final String HIDE_NAVIGATION_HANDLE = "hide_navigation_handle";
++
+         // ExtSettings END
+ 
+         // NOTE: If you add new settings here, be sure to add them to
