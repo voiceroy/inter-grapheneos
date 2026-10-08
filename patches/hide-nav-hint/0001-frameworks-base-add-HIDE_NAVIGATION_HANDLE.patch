@@ -14,15 +14,15 @@ Apply inside frameworks/base:
 Source: https://github.com/GrapheneOS/platform_frameworks_base/pull/440
 Head:   0xALUCARD:hide-nav-hint @ ffdacc31fdc860fc2aa6138c4e5f7972d77b606e
 ---
- core/api/system-current.txt                    | 1 +
- core/java/android/ext/KnownSystemPackage.java  | 2 ++
- core/java/android/ext/KnownSystemPackages.java | 1 +
+ core/api/system-current.txt                     | 1 +
+ core/java/android/ext/KnownSystemPackage.java   | 2 ++
+ core/java/android/ext/KnownSystemPackages.java  | 1 +
  core/java/android/ext/settings/ExtSettings.java | 3 +++
- core/java/android/provider/Settings.java       | 4 ++++
+ core/java/android/provider/Settings.java        | 4 ++++
  5 files changed, 11 insertions(+)
 
 diff --git a/core/api/system-current.txt b/core/api/system-current.txt
-index c0df87a641bb3..42ac871b791be 100644
+index c0df87a6..42ac871b 100644
 --- a/core/api/system-current.txt
 +++ b/core/api/system-current.txt
 @@ -5821,6 +5821,7 @@ package android.ext {
@@ -34,7 +34,7 @@ index c0df87a641bb3..42ac871b791be 100644
      field public static final int SETUP_WIZARD = 3; // 0x3
      field public static final int SHELL = 1; // 0x1
 diff --git a/core/java/android/ext/KnownSystemPackage.java b/core/java/android/ext/KnownSystemPackage.java
-index bb88a92edad51..6833460272916 100644
+index bb88a92e..68334602 100644
 --- a/core/java/android/ext/KnownSystemPackage.java
 +++ b/core/java/android/ext/KnownSystemPackage.java
 @@ -13,6 +13,7 @@ public interface KnownSystemPackage {
@@ -54,10 +54,10 @@ index bb88a92edad51..6833460272916 100644
      @Retention(RetentionPolicy.SOURCE)
      @interface Enum {}
 diff --git a/core/java/android/ext/KnownSystemPackages.java b/core/java/android/ext/KnownSystemPackages.java
-index 839f04c0773bc..22c1f5ac053e0 100644
+index 839f04c0..22c1f5ac 100644
 --- a/core/java/android/ext/KnownSystemPackages.java
 +++ b/core/java/android/ext/KnownSystemPackages.java
-@@ -49,6 +49,7 @@ public String getById(@KnownSystemPackage.Enum int id) {
+@@ -49,6 +49,7 @@ public final class KnownSystemPackages {
              case KnownSystemPackage.SHELL -> shell;
              case KnownSystemPackage.SYSTEM_UI -> systemUi;
              case KnownSystemPackage.SETUP_WIZARD -> setupWizard;
@@ -66,12 +66,12 @@ index 839f04c0773bc..22c1f5ac053e0 100644
          };
      }
 diff --git a/core/java/android/ext/settings/ExtSettings.java b/core/java/android/ext/settings/ExtSettings.java
-index 821f3d2384ce2..2522ecff49838 100644
+index b0eb63aa..384292dd 100644
 --- a/core/java/android/ext/settings/ExtSettings.java
 +++ b/core/java/android/ext/settings/ExtSettings.java
-@@ -100,6 +100,9 @@ public class ExtSettings {
-     public static final BoolSetting DISALLOW_DELAYED_LOCKING_ON_USER_STOP = new BoolSetting(
-             Setting.Scope.PER_USER, Settings.Secure.DISALLOW_DELAYED_LOCKING_ON_USER_STOP, false);
+@@ -104,6 +104,9 @@ public class ExtSettings {
+             Setting.Scope.GLOBAL, Settings.Global.ALLOW_CLIPBOARD_READ_BY_DEFAULT,
+             defaultBool(R.bool.setting_default_allow_clipboard_read));
  
 +    public static final BoolSetting HIDE_NAVIGATION_HANDLE = new BoolSetting(
 +            Setting.Scope.PER_USER, Settings.Secure.HIDE_NAVIGATION_HANDLE, false);
@@ -80,10 +80,10 @@ index 821f3d2384ce2..2522ecff49838 100644
  
      public static Function<Context, Boolean> defaultBool(@BoolRes int res) {
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 4c940ca0334bd..a78f9289d2476 100644
+index 4c940ca0..a78f9289 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
-@@ -7523,6 +7523,10 @@ public static final class Secure extends NameValueTable {
+@@ -7523,6 +7523,10 @@ public final class Settings {
          @Protected(readWrite = KnownSystemPackage.SETTINGS)
          public static final String DISALLOW_DELAYED_LOCKING_ON_USER_STOP = "disallow_delayed_locking_on_user_stop";
  

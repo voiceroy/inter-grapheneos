@@ -13,29 +13,29 @@ Apply inside packages/apps/Settings:
 Source: https://github.com/GrapheneOS/platform_packages_apps_Settings/pull/448
 Head:   0xALUCARD:hide-nav-hint @ 265ba8bb7f36338f2f914dd9acc9b3deff5d658d
 ---
- res/values/strings_ext.xml                           |  7 +++++++
- res/xml/gesture_navigation_settings.xml              | 13 +++++++++++++
- src/com/android/settings/gestures/HideNavigationHandleController.java | 27 +++++++++++++++++++++++++++
+ res/values/strings_ext.xml                         |  7 ++++++
+ res/xml/gesture_navigation_settings.xml            | 13 +++++++++++
+ .../gestures/HideNavigationHandleController.java   | 27 ++++++++++++++++++++++
  3 files changed, 47 insertions(+)
 
 diff --git a/res/values/strings_ext.xml b/res/values/strings_ext.xml
-index 18de9b0a68d..42a6404e1f6 100644
+index 0ac5bf5..04b0ec5 100644
 --- a/res/values/strings_ext.xml
 +++ b/res/values/strings_ext.xml
-@@ -340,4 +340,11 @@ May cause unreliable service. Use at your own risk.
-     <string name="cert_transparency_dl_footer">"Certificate Transparency (CT) is an Internet standard designed to enhance the security of digital certificates. It requires Certificate Authorities (CAs) to submit all issued certificates to a public log that records them, increasing transparency and accountability in the certificate issuance process.
+@@ -371,4 +371,11 @@ For compatibility, this app can still see clipboard metadata, such as whether an
+     <string name="app_clipboard_read_shared_uid_warning">"The clipboard access setting, blocked access message setting, and temporary Paste access are shared among these apps:
+ %1$s"</string>
  
- By maintaining a verifiable record of all certificates, CT makes it significantly harder for malicious actors to forge certificates or for CAs to mistakenly issue them. This helps protect apps from man-in-the-middle attacks and other security threats."</string>
-+
 +    <!-- Title for setting category in gesture navigation settings that is used to toggle displaying or hiding the navigation hint (pill). [CHAR LIMIT=60] -->
 +    <string name="hide_navigation_handle_category_title">Navigation hint</string>
 +    <!-- Title text for hiding the navigation hint (pill). [CHAR LIMIT=60] -->
 +    <string name="hide_navigation_handle_title">Hide navigation hint</string>
 +    <!-- Summary text for hiding the navigation hint (pill). [CHAR LIMIT=NONE] -->
 +    <string name="hide_navigation_handle_summary">Hide the gesture navigation hint (pill) shown at the bottom of the screen</string>
++
  </resources>
 diff --git a/res/xml/gesture_navigation_settings.xml b/res/xml/gesture_navigation_settings.xml
-index d2719853346..21f267d94fe 100644
+index d271985..21f267d 100644
 --- a/res/xml/gesture_navigation_settings.xml
 +++ b/res/xml/gesture_navigation_settings.xml
 @@ -34,6 +34,19 @@
@@ -60,7 +60,7 @@ index d2719853346..21f267d94fe 100644
          android:persistent="false"
 diff --git a/src/com/android/settings/gestures/HideNavigationHandleController.java b/src/com/android/settings/gestures/HideNavigationHandleController.java
 new file mode 100644
-index 00000000000..35e0abddab1
+index 0000000..35e0abd
 --- /dev/null
 +++ b/src/com/android/settings/gestures/HideNavigationHandleController.java
 @@ -0,0 +1,27 @@

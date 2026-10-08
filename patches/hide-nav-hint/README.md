@@ -15,10 +15,11 @@ Captured 2026-09-15 from:
 toggle; the three numbered patches are the squashed net diffs. `upstream/`
 keeps the original GitHub `git format-patch` series (pre-squash commits).
 
-`0001` targets tagged `frameworks/base` where `ExtSettings` still ends
-`DISALLOW_DELAYED_LOCKING_ON_USER_STOP` then the private constructor (pre
-secure-paste). Branch `17` after 2026-09-13 has clipboard settings in
-between; `apply.sh` falls back to `patch --fuzz=3` if `git apply` misses.
+Rebased onto GrapheneOS release `2026100600` (2026-10-08). On that tag
+`ExtSettings` has the secure-paste clipboard settings, so `0001` adds
+`HIDE_NAVIGATION_HANDLE` after `ALLOW_CLIPBOARD_READ_BY_DEFAULT`, and `0002`
+appends its strings after the clipboard strings in `strings_ext.xml`. All
+three patches `git apply` cleanly on `2026100600`, so no fuzz is needed.
 
 Settings#448 was `mergeable_state: dirty` against GrapheneOS `17` at capture.
 `--check` before applying on a tree that has moved. `apply.sh` skips a
