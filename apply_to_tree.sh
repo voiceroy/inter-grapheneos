@@ -29,6 +29,10 @@
 #   - appends a trailing underscore to the RRO module name in
 #     vendor/google_devices/<name>/overlays/framework-res__<name>__auto_generated_rro_product/Android.bp
 # Both edits are idempotent.
+#
+# Also copies bootanimation/1080.zip over branding/bootanimation/1080.zip
+# when that directory exists. Tokay selects the 1080 canvas. Regenerate
+# the zip with bootanimation/generate.py (needs Pillow).
 
 set -euo pipefail
 
@@ -49,7 +53,7 @@ while [[ $# -gt 0 ]]; do
         --device) device="$2"; shift 2 ;;
         --device=*) device="${1#*=}"; shift ;;
         -h|--help)
-            sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,35p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         --) shift; tree="${1:-$tree}"; shift || true ;;
@@ -119,4 +123,19 @@ if [[ -n "$device" ]]; then
 else
     echo "note: --device not set; skipping device.mk include and RRO rename"
     echo "      (rerun with --device <name> after the AOSP tree finishes syncing)"
+fi
+
+boot_zip="$here/bootanimation/1080.zip"
+if [[ ! -f "$boot_zip" ]]; then
+    echo "error: missing $boot_zip" >&2
+    echo "       run: python3 $here/bootanimation/generate.py" >&2
+    exit 1
+fi
+boot_dest="$aosp_abs/branding/bootanimation"
+if [[ -d "$boot_dest" ]]; then
+    echo "==> installing dash boot animation"
+    cp -f "$boot_zip" "$boot_dest/1080.zip"
+    echo "✓ $boot_dest/1080.zip"
+else
+    echo "note: branding/bootanimation is not in this tree yet; left $boot_zip"
 fi
