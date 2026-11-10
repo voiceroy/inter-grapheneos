@@ -15,11 +15,11 @@ Captured 2026-09-15 from:
 toggle; the three numbered patches are the squashed net diffs. `upstream/`
 keeps the original GitHub `git format-patch` series (pre-squash commits).
 
-Rebased onto GrapheneOS release `2026100600` (2026-10-08). On that tag
+Rebased onto GrapheneOS release `2026110700` (2026-11-10). On that tag
 `ExtSettings` has the secure-paste clipboard settings, so `0001` adds
 `HIDE_NAVIGATION_HANDLE` after `ALLOW_CLIPBOARD_READ_BY_DEFAULT`, and `0002`
 appends its strings after the clipboard strings in `strings_ext.xml`. All
-three patches `git apply` cleanly on `2026100600`, so no fuzz is needed.
+three patches `git apply` cleanly on `2026110700`, so no fuzz is needed.
 
 Settings#448 was `mergeable_state: dirty` against GrapheneOS `17` at capture.
 `--check` before applying on a tree that has moved. `apply.sh` skips a

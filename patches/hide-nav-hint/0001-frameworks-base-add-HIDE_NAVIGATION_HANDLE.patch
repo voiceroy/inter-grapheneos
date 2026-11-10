@@ -80,7 +80,7 @@ index b0eb63aa..384292dd 100644
  
      public static Function<Context, Boolean> defaultBool(@BoolRes int res) {
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 4c940ca0..a78f9289 100644
+index 99595a9d..bd66a893 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
 @@ -7523,6 +7523,10 @@ public final class Settings {
